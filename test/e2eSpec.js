@@ -21,7 +21,7 @@ describe('TradeMatcherJS', function() {
     var m = new matcher.Matcher();
 
     m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
-    m.send({ product: 'FLOWERS', price: 1, is: 'sell', amount: 10, oid: 901 });
+    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 901 });
 
     expect(m.availableOffers).to.equal(2);
   })
