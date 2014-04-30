@@ -17,6 +17,22 @@ describe('TradeMatcherJS', function() {
     expect(m.availableOffers).to.equal(0);
   })
 
+  it('should match up to amount', function(done) {
+    var m = new matcher.Matcher();
+    m.on('match', function(offer1, offer2) {
+      expect(offer1.oid).to.equal(123);
+      expect(offer1.amount).to.equal(5);
+      expect(offer2.amount).to.equal(5);
+      expect(offer2.oid).to.equal(901);
+      done();
+    });
+
+    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 5, oid: 123 });
+    m.send({ product: 'COOKIES', price: 1, is: 'buy', amount: 10, oid: 901 });
+
+    expect(m.availableOffers).to.equal(1);
+  })
+
   it('should not match same direction offers', function() {
     var m = new matcher.Matcher();
 
