@@ -11,7 +11,18 @@ describe('TradeMatcherJS', function() {
       done();
     });
 
-    m.send({ product: 'COOKIES', price: 1, to_sell: 10, oid: 123 });
-    m.send({ product: 'COOKIES', price: 1, to_buy: 10, oid: 901 });
+    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
+    m.send({ product: 'COOKIES', price: 1, is: 'buy', amount: 10, oid: 901 });
+
+    expect(m.availableOffers).to.equal(0);
+  })
+
+  it('should match offers of same product', function() {
+    var m = new matcher.Matcher();
+
+    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
+    m.send({ product: 'FLOWERS', price: 1, is: 'buy', amount: 10, oid: 901 });
+
+    expect(m.availableOffers).to.equal(2);
   })
 });
