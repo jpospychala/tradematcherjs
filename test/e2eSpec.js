@@ -158,4 +158,35 @@ describe('TradeMatcherJS', function() {
     });
     expect(m.availableOffers).to.equal(0, JSON.stringify(m.offers));
   });
+
+  it('should discard an offer', function() {
+    var m = new matcher.Matcher();
+
+    m.send(offer("1: buy 2 X for 1"));
+    m.discard(offer("1: buy 2 X for 1"));
+
+    expect(m.availableOffers).to.equal(0, JSON.stringify(m.offers));
+  });
+
+  it('should discard existing offer', function() {
+    var m = new matcher.Matcher();
+
+    m.send(offer("2: buy 2 X for 1"));
+    m.discard(offer("1: buy 2 X for 1"));
+
+    expect(m.availableOffers).to.equal(1, JSON.stringify(m.offers));
+  });
+
+  it('should discard offer with different amount', function() {
+    var m = new matcher.Matcher();
+
+    m.send(offer("1: buy 10 X for 1"));
+    m.send(offer("2: buy 10 X for 1"));
+    m.send(offer("3: sell 13 X for 1"));
+    m.send(offer("4: buy 10 X for 1"));
+    m.discard(offer("2: buy 10 X for 1")); // 2 actually has 7 atm
+    m.send(offer("5: sell 10 X for 1"));
+
+    expect(m.availableOffers).to.equal(0, JSON.stringify(m.offers));
+  });
 });
