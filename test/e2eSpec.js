@@ -7,8 +7,8 @@ describe('TradeMatcherJS', function() {
   it('should not match same direction offers', function() {
     var m = new matcher.Matcher();
 
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 901 });
+    m.send(offer("123: sell 10 COOKIES for 1"));
+    m.send(offer("901: sell 10 COOKIES for 1"));
 
     expect(m.availableOffers).to.equal(2);
   })
@@ -16,8 +16,8 @@ describe('TradeMatcherJS', function() {
   it('should match offers of same product', function() {
     var m = new matcher.Matcher();
 
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
-    m.send({ product: 'FLOWERS', price: 1, is: 'buy', amount: 10, oid: 901 });
+    m.send(offer("123: sell 10 COOKIES for 1"));
+    m.send(offer("901: buy 10 FLOWERS for 1"));
 
     expect(m.availableOffers).to.equal(2);
   })
@@ -25,8 +25,8 @@ describe('TradeMatcherJS', function() {
   it('should match offers of same price', function() {
     var m = new matcher.Matcher();
 
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
-    m.send({ product: 'COOKIES', price: 1.5, is: 'buy', amount: 10, oid: 901 });
+    m.send(offer("123: sell 10 COOKIES for 1"));
+    m.send(offer("901: buy 10 COOKIES for 1.5"));
 
     expect(m.availableOffers).to.equal(2);
   })
@@ -39,8 +39,8 @@ describe('TradeMatcherJS', function() {
       done();
     });
 
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
-    m.send({ product: 'COOKIES', price: 1, is: 'buy', amount: 10, oid: 901 });
+    m.send(offer("123: sell 10 COOKIES for 1"));
+    m.send(offer("901: buy 10 COOKIES for 1"));
 
     expect(m.availableOffers).to.equal(0);
   })
@@ -55,8 +55,8 @@ describe('TradeMatcherJS', function() {
       done();
     });
 
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
-    m.send({ product: 'COOKIES', price: 1, is: 'buy', amount: 5, oid: 901 });
+    m.send(offer("123: sell 10 COOKIES for 1"));
+    m.send(offer("901: buy 5 COOKIES for 1"));
 
     expect(m.availableOffers).to.equal(1);
   })
@@ -71,8 +71,8 @@ describe('TradeMatcherJS', function() {
       done();
     });
 
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 5, oid: 123 });
-    m.send({ product: 'COOKIES', price: 1, is: 'buy', amount: 10, oid: 901 });
+    m.send(offer("123: sell 5 COOKIES for 1"));
+    m.send(offer("901: buy 10 COOKIES for 1"));
 
     expect(m.availableOffers).to.equal(1);
   })
@@ -84,9 +84,9 @@ describe('TradeMatcherJS', function() {
       (++counter == 2) && done();
     });
 
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 10, oid: 123 });
-    m.send({ product: 'COOKIES', price: 1, is: 'buy', amount: 5, oid: 901 });
-    m.send({ product: 'COOKIES', price: 1, is: 'buy', amount: 5, oid: 902 });
+    m.send(offer("123: sell 10 COOKIES for 1"));
+    m.send(offer("901: buy 5 COOKIES for 1"));
+    m.send(offer("921: buy 5 COOKIES for 1"));
 
     expect(m.availableOffers).to.equal(0);
   })
@@ -98,11 +98,32 @@ describe('TradeMatcherJS', function() {
       done();
     });
 
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 5, oid: 123 });
-    m.send({ product: 'COOKIES', price: 1, is: 'sell', amount: 5, oid: 124 });
-    m.send({ product: 'COOKIES', price: 1, is: 'buy', amount: 10, oid: 901 });
+    m.send(offer("123: sell 5 COOKIES for 1"));
+    m.send(offer("124: sell 5 COOKIES for 1"));
+    m.send(offer("901: buy 10 COOKIES for 1"));
 
     expect(m.availableOffers).to.equal(0);
   })
 
+  it('should produce offer', function() {
+    expect(offer("901: buy 10 COOKIES for 1"))
+    .to.deep.equal({
+      product: 'COOKIES',
+      price: 1,
+      is: 'buy',
+      amount: 10,
+      oid: 901 })
+  });
+
 });
+
+function offer(descr) {
+  // "123: sell 1 COOKIES for 3"
+  var args = descr.split(' ');
+  return {
+    is: args[1],
+    amount: parseFloat(args[2]),
+    product: args[3],
+    price: parseFloat(args[5]),
+    oid: parseInt(args[0].replace(":", "")) };
+}
