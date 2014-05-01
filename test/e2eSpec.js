@@ -104,4 +104,24 @@ describe('TradeMatcherJS', function() {
 
     expect(m.availableOffers).to.equal(0);
   })
+
+  it('should match buy, buy, sell, sell', function(done) {
+    var m = new matcher.Matcher();
+    expectDeals(m, [
+      "3 buys 7: 2 from 1, 5 from 2",
+      "4 buys 3: 3 from 2"
+    ], done);
+
+    var offers = [
+      "1: sell 2 X for 1",
+      "2: sell 8 X for 1",
+      "3: buy 7 X for 1",
+      "4: buy 3 X for 1"]
+    offers.forEach(function(o) {
+      m.send(offer(o));
+    });
+
+    expect(m.availableOffers).to.equal(0, JSON.stringify(m.offers));
+  })
+
 });
