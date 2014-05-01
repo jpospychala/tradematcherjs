@@ -148,4 +148,14 @@ describe('TradeMatcherJS', function() {
 
     expect(m.availableOffers).to.equal(0, JSON.stringify(m.offers));
   });
+
+  it('should match random offers', function() {
+    var m = new matcher.Matcher();
+
+    var offers = utils.generateOffers(1000, ['COOKIES'], [1, 2, 3], utils.random(100, 1000));
+    offers.forEach(function(o) {
+      m.send(o);
+    });
+    expect(m.availableOffers).to.equal(0, JSON.stringify(m.offers));
+  });
 });

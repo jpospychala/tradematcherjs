@@ -63,9 +63,65 @@ function expectDeals(matcher, expectedMatches, callback) {
   });
 }
 
+function generateOffers(offers_count, products, prices, amount_gen) {
+  var start = new Date().getTime();
+  offers = [];
+  products.forEach(function(product) {
+    prices.forEach(function(price) {
+        offers = offers.concat(_generateOffers(product, offers_count, amount_gen));
+    });
+  })
+  var end = new Date().getTime();
+  return offers;
+}
+function _generateOffers(prod, offers_count, amount_gen, price) {
+  var count = offers_count/2;
+  var oid = 1;
+  var offers = [];
+  var total = 0;
+  while (count-- > 0) {
+    var amount = amount_gen();
+    total += amount;
+    offers.push({oid:oid++, amount: amount, product: prod, price: price,is:'sell'});
+  }
+  while (total > 0) {
+    var amount = Math.min(amount_gen(), total);
+    total -= amount;
+    offers.push({oid:oid++, amount: amount, product: prod, price: price,is:'buy'});
+  }
+return offers;
+}
+
+function range(min, max) {
+  var res = [];
+  for (var i = min; i <= max; i++) {
+    res.push(i);
+  }
+  return res;
+}
+
+function constant(val) {
+  return function() { return val; }
+}
+
+function random(min, max) {
+  return function() {
+    return Math.floor(min + Math.random() * (max-min));
+  }
+}
+
+function shuffle(array) {
+  array.sort(function() {return Math.random() > 0.5 ? -1 : 1 })
+}
+
 module.exports = {
   offer: offer,
   deal: deal,
   expectDeals: expectDeals,
-  toHuman: toHuman
+  toHuman: toHuman,
+  range: range,
+  generateOffers: generateOffers,
+  shuffle: shuffle,
+  constant: constant,
+  random: random
 }
