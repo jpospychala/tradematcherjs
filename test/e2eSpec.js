@@ -121,7 +121,31 @@ describe('TradeMatcherJS', function() {
       m.send(offer(o));
     });
 
-    expect(m.availableOffers).to.equal(0, JSON.stringify(m.offers));
+    expect(m.availableOffers).to.equal(0);
   })
 
+  it('should match sequence of offers 2', function(done) {
+    var m = new matcher.Matcher();
+    expectDeals(m, [
+        "3 sells 111: 111 from 5",
+        "1 sells 110: 43 from 5, 67 from 4",
+        "2 sells 70: 70 from 4",
+        "6 buys 50: 50 from 2"
+    ], done);
+
+    var offers = [
+      "5: buy 154 X for 1",
+      "3: sell 111 X for 1",
+      "4: buy 137 X for 1",
+      "1: sell 110 X for 1",
+      "2: sell 120 X for 1",
+      "6: buy 50 X for 1"
+    ]
+
+    offers.forEach(function(o) {
+      m.send(offer(o));
+    });
+
+    expect(m.availableOffers).to.equal(0, JSON.stringify(m.offers));
+  });
 });
