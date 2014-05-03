@@ -18,11 +18,27 @@ describe('Test utils', function() {
     });
   });
 
-  it('should produce deal', function() {
-    expect(deal("126 buys 10: 2 from 123, 8 from 125"))
+  it('should produce sell', function() {
+    expect(deal("126 sells 10 BOOK for 3: 2 from 123, 8 from 125"))
     .to.deep.equal([
-      {oid: 126, amount: 10},
+      {oid: 126, amount: 10, is: 'sell', product: 'BOOK', price: 3},
       [{oid: 123, amount: 2}, {oid: 125, amount: 8}]
     ]);
-  })
+  });
+
+  it('should produce buy', function() {
+    expect(deal("126 buys 10 BOOK for 1: 2 from 123, 8 from 125"))
+    .to.deep.equal([
+      {oid: 126, amount: 10, is: 'buy', product: 'BOOK', price: 1},
+      [{oid: 123, amount: 2}, {oid: 125, amount: 8}]
+    ]);
+  });
+
+  it('should produce price', function() {
+    expect(deal("126 sells 10 BOOKS for 3: 2 from 123, 8 from 125"))
+    .to.deep.equal([
+      {oid: 126, amount: 10, is: 'sell', product: 'BOOKS', price: 3},
+      [{oid: 123, amount: 2}, {oid: 125, amount: 8}]
+    ]);
+  });
 });

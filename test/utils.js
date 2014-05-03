@@ -36,13 +36,21 @@ function deal(descr) {
   // "126 buys 10: 2 from 123, 8 from 125"
   var deal = descr.split(":");
   var args1 = deal[0].split(' ');
+  var offer1 = {
+    oid: parseInt(args1[0]),
+    amount: parseFloat(args1[2]),
+    is: args1[1] === 'buys' ? 'buy': 'sell',
+    product: args1[3],
+    price: parseFloat(args1[5])
+  };
+
   var args2 = deal[1].split(',');
   var offers = [];
   args2.forEach(function(arg2) {
     var arg = arg2.trim().split(' ');
     offers.push({oid: parseInt(arg[2]), amount: parseFloat(arg[0])});
   })
-  var offer1 = {oid: parseInt(args1[0]), amount: parseFloat(args1[2])};
+
   return [offer1, offers.length == 1? offers[0]: offers];
 }
 
