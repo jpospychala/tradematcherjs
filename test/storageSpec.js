@@ -3,7 +3,8 @@ var chai = require('chai'),
   chaiAsPromised = require("chai-as-promised"),
   Storage = require('../lib/storage').Storage,
   utils = require('./utils'),
-  offer = utils.offer;
+  offer = utils.offer,
+  deal = utils.deal;
 
 chai.use(chaiAsPromised);
 
@@ -23,13 +24,9 @@ describe('Store', function() {
   });
 
   it('should store arriving offers and deals', function(done) {
-    storage.writeOffer(offer('1: sell 1 COOKIES for 3'))
-    .then(function() {
-      return storage.writeOffer(offer('2: buy 1 COOKIES for 3'));
-    })
-    .then(function() {
-      return storage.writeDeal('2 deals 3: 3 from 1');
-    })
+    promiseOffer(storage, '1: sell 1 COOKIES for 3')()
+    .then(promiseOffer(storage, '2: buy 1 COOKIES for 3'))
+    .then(promiseDeal(storage, '2 buys 1 COOKIES for 3: 1 from 1'))
     .then(function() {
       expect(storage.load()).to.eventually.deep.equal({
         COOKIES: {
@@ -60,3 +57,15 @@ describe('Store', function() {
     })
   })
 })
+
+function promiseOffer(storage, offerTxt) {
+  return function() {
+    return storage.writeOffer(offer(offerTxt));
+  }
+}
+
+function promiseDeal(storage, offerTxt) {
+  return function() {
+    return storage.writeDeal(deal(offerTxt));
+  }
+}
