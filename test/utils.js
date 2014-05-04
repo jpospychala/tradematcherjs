@@ -20,9 +20,6 @@ function toHuman(offer) {
 
 function dealToHuman(deal) {
   var ret = deal[0].oid + " deals "+deal[0].amount+": ";
-  if (! (deal[1] instanceof Array)) {
-    deal[1] = [deal[1]];
-  }
   deal[1].forEach(function(d, idx, array) {
     ret += d.amount+" from "+d.oid;
     if (idx + 1 < array.length) {
@@ -48,10 +45,20 @@ function deal(descr) {
   var offers = [];
   args2.forEach(function(arg2) {
     var arg = arg2.trim().split(' ');
-    offers.push({oid: parseInt(arg[2]), amount: parseFloat(arg[0])});
+    var counter_offer = {
+      oid: parseInt(arg[2])
+    };
+    if (arg[0].indexOf('/') != -1) {
+      var amounts_split = arg[0].split('/');
+      counter_offer.amount = parseFloat(amounts_split[0]);
+      counter_offer.amount_before = parseFloat(amounts_split[1]);
+    } else {
+      counter_offer.amount = parseFloat(arg[0]);
+    }
+    offers.push(counter_offer);
   })
 
-  return [offer1, offers.length == 1? offers[0]: offers];
+  return [offer1, offers];
 }
 
 function expectDeals(matcher, expectedMatches, callback) {

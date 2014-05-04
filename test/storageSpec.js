@@ -28,17 +28,52 @@ describe('Store', function() {
     .then(promiseOffer(storage, '2: buy 1 COOKIES for 3'))
     .then(promiseDeal(storage, '2 buys 1 COOKIES for 3: 1 from 1'))
     .then(function() {
+      expect(storage.load()).to.eventually.deep.equal({}).notify(done);
+    }, done)
+  })
+
+  it('should split offer in deal', function(done) {
+    promiseOffer(storage, '1: sell 1 COOKIES for 3')()
+    .then(promiseOffer(storage, '2: buy 2 COOKIES for 3'))
+    .then(promiseDeal(storage, '2 buys 1 COOKIES for 3: 1 from 1'))
+    .then(function() {
       expect(storage.load()).to.eventually.deep.equal({
         COOKIES: {
           "3": {
-            sell: [],
-            buy: []
+            buy: [
+              {oid: 2, amount: 1}
+            ]
           }
         }
       }).notify(done);
-    }, function(error) {
-      done(error);
-    })
+    }, done)
+  });
+
+  it('should store multiple counter-offers in deal', function(done) {
+    promiseOffer(storage, '1: sell 1 COOKIES for 3')()
+    .then(promiseOffer(storage, '2: sell 1 COOKIES for 3'))
+    .then(promiseOffer(storage, '3: buy 2 COOKIES for 3'))
+    .then(promiseDeal(storage, '3 buys 2 COOKIES for 3: 1 from 1, 1 from 2'))
+    .then(function() {
+      expect(storage.load()).to.eventually.deep.equal({}).notify(done);
+    }, done)
+  });
+
+  it('should split counter-offer in deal', function(done) {
+    promiseOffer(storage, '1: sell 2 COOKIES for 3')()
+    .then(promiseOffer(storage, '2: buy 1 COOKIES for 3'))
+    .then(promiseDeal(storage, '2 buys 1 COOKIES for 3: 1 from 1'))
+    .then(function() {
+      expect(storage.load()).to.eventually.deep.equal({
+        COOKIES: {
+          "3": {
+            sell: [
+              {oid: 1, amount: 1}
+            ]
+          }
+        }
+      }).notify(done);
+    }, done)
   })
 
   it('should store arriving offers', function(done) {
@@ -47,14 +82,13 @@ describe('Store', function() {
       expect(storage.load()).to.eventually.deep.equal({
         COOKIES: {
           "3": {
-            sell: [{oid:1, amount: 1}],
-            buy: []
+            sell: [
+              {oid: 1, amount: 1}
+            ]
           }
         }
       }).notify(done);
-    }, function(error) {
-      done(error);
-    })
+    }, done)
   })
 })
 

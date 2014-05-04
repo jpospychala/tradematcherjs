@@ -18,7 +18,7 @@ describe('Test utils', function() {
     });
   });
 
-  it('should produce sell', function() {
+  it('should produce sell deal', function() {
     expect(deal("126 sells 10 BOOK for 3: 2 from 123, 8 from 125"))
     .to.deep.equal([
       {oid: 126, amount: 10, is: 'sell', product: 'BOOK', price: 3},
@@ -26,7 +26,7 @@ describe('Test utils', function() {
     ]);
   });
 
-  it('should produce buy', function() {
+  it('should produce buy deal', function() {
     expect(deal("126 buys 10 BOOK for 1: 2 from 123, 8 from 125"))
     .to.deep.equal([
       {oid: 126, amount: 10, is: 'buy', product: 'BOOK', price: 1},
@@ -34,7 +34,15 @@ describe('Test utils', function() {
     ]);
   });
 
-  it('should produce price', function() {
+  it('should produce buy deal with amount_before', function() {
+    expect(deal("126 buys 10 BOOK for 1: 2 from 123, 8/16 from 125"))
+    .to.deep.equal([
+      {oid: 126, amount: 10, is: 'buy', product: 'BOOK', price: 1},
+      [{oid: 123, amount: 2}, {oid: 125, amount: 8, amount_before: 16}]
+    ]);
+  });
+
+  it('should produce deal with price', function() {
     expect(deal("126 sells 10 BOOKS for 3: 2 from 123, 8 from 125"))
     .to.deep.equal([
       {oid: 126, amount: 10, is: 'sell', product: 'BOOKS', price: 3},
