@@ -19,7 +19,7 @@ function toHuman(offer) {
 }
 
 function dealToHuman(deal) {
-  var ret = deal[0].oid + " deals "+deal[0].amount+": ";
+  var ret = deal[0].oid + " "+deal[0].is+"s "+deal[0].amount+": ";
   deal[1].forEach(function(d, idx, array) {
     ret += d.amount+" from "+d.oid;
     if (idx + 1 < array.length) {
@@ -63,12 +63,6 @@ function deal(descr) {
 
 function expectDeals(matcher, expectedMatches, callback) {
   var actualMatches = [];
-  expectedMatches.forEach(function(match, i) {
-    expectedMatches[i] = match
-      .replace('buys', 'deals')
-      .replace('sells', 'deals');
-  });
-
   matcher.on('match', function(offer1, offer2) {
     actualMatches.push(dealToHuman([offer1, offer2]));
     if (actualMatches.length === expectedMatches.length) {
@@ -134,6 +128,7 @@ module.exports = {
   deal: deal,
   expectDeals: expectDeals,
   toHuman: toHuman,
+  dealToHuman: dealToHuman,
   range: range,
   generateOffers: generateOffers,
   shuffle: shuffle,
