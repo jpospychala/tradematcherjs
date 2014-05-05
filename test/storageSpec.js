@@ -1,6 +1,7 @@
 var chai = require('chai'),
   expect = chai.expect,
   chaiAsPromised = require("chai-as-promised"),
+  Q = require('q'),
   Storage = require('../lib/storage').Storage,
   utils = require('./utils'),
   offer = utils.offer,
@@ -24,20 +25,25 @@ describe('Store', function() {
   });
 
   it('should store arriving offers and deals', function(done) {
-    promiseOffer(storage, '1: sell 1 COOKIES for 3')()
-    .then(promiseOffer(storage, '2: buy 1 COOKIES for 3'))
-    .then(promiseDeal(storage, '2 buys 1 COOKIES for 3: 1 from 1'))
-    .then(function() {
-      expect(storage.load()).to.eventually.deep.equal({}).notify(done);
-    }, done)
+    store(storage, [
+      '1: sell 1 COOKIES for 3',
+      '2: buy 1 COOKIES for 3',
+      '2 buys 1 COOKIES for 3: 1 from 1'
+    ])
+    .then(function(store) {
+      expect(store).to.deep.equal({});
+    })
+    .then(done, done);
   })
 
   it('should split offer in deal', function(done) {
-    promiseOffer(storage, '1: sell 1 COOKIES for 3')()
-    .then(promiseOffer(storage, '2: buy 2 COOKIES for 3'))
-    .then(promiseDeal(storage, '2 buys 1 COOKIES for 3: 1 from 1'))
-    .then(function() {
-      expect(storage.load()).to.eventually.deep.equal({
+    store(storage, [
+        '1: sell 1 COOKIES for 3',
+        '2: buy 2 COOKIES for 3',
+        '2 buys 1 COOKIES for 3: 1 from 1'
+      ])
+    .then(function(store) {
+      expect(store).to.deep.equal({
         COOKIES: {
           "3": {
             buy: [
@@ -45,26 +51,31 @@ describe('Store', function() {
             ]
           }
         }
-      }).notify(done);
-    }, done)
+      });
+    })
+    .then(done, done);
   });
 
   it('should store multiple counter-offers in deal', function(done) {
-    promiseOffer(storage, '1: sell 1 COOKIES for 3')()
-    .then(promiseOffer(storage, '2: sell 1 COOKIES for 3'))
-    .then(promiseOffer(storage, '3: buy 2 COOKIES for 3'))
-    .then(promiseDeal(storage, '3 buys 2 COOKIES for 3: 1 from 1, 1 from 2'))
-    .then(function() {
-      expect(storage.load()).to.eventually.deep.equal({}).notify(done);
-    }, done)
+    store(storage, [
+       '1: sell 1 COOKIES for 3',
+      '2: sell 1 COOKIES for 3',
+      '3: buy 2 COOKIES for 3',
+      '3 buys 2 COOKIES for 3: 1 from 1, 1 from 2'])
+    .then(function(store) {
+      expect(store).to.deep.equal({});
+    })
+    .then(done, done);
   });
 
   it('should split counter-offer in deal', function(done) {
-    promiseOffer(storage, '1: sell 2 COOKIES for 3')()
-    .then(promiseOffer(storage, '2: buy 1 COOKIES for 3'))
-    .then(promiseDeal(storage, '2 buys 1 COOKIES for 3: 1 from 1'))
-    .then(function() {
-      expect(storage.load()).to.eventually.deep.equal({
+    store(storage, [
+      '1: sell 2 COOKIES for 3',
+      '2: buy 1 COOKIES for 3',
+      '2 buys 1 COOKIES for 3: 1 from 1'
+    ])
+    .then(function(store) {
+      expect(store).to.deep.equal({
         COOKIES: {
           "3": {
             sell: [
@@ -72,14 +83,15 @@ describe('Store', function() {
             ]
           }
         }
-      }).notify(done);
-    }, done)
+      });
+    })
+    .then(done, done);
   })
 
   it('should store arriving offers', function(done) {
-    storage.writeOffer(offer('1: sell 1 COOKIES for 3'))
-    .then(function() {
-      expect(storage.load()).to.eventually.deep.equal({
+    store(storage, ['1: sell 1 COOKIES for 3'])
+    .then(function(store) {
+      expect(store).to.deep.equal({
         COOKIES: {
           "3": {
             sell: [
@@ -87,18 +99,33 @@ describe('Store', function() {
             ]
           }
         }
-      }).notify(done);
-    }, done)
+      });
+    })
+    .then(done, done);
   })
 })
 
-function promiseOffer(storage, offerTxt) {
+function store(storage, cmdsArray) {
+  var promiseFns = cmdsArray.map(function(cmd) {
+    if ((cmd.indexOf('buy ') >= 0) || (cmd.indexOf('sell ') >= 0)) {
+      return storeOffer(storage, cmd);
+    } else {
+      return storeDeal(storage, cmd);
+    }
+  });
+  return promiseFns.reduce(Q.when, Q(''))
+    .then(function() {
+      return storage.load();
+    });
+}
+
+function storeOffer(storage, offerTxt) {
   return function() {
     return storage.writeOffer(offer(offerTxt));
   }
 }
 
-function promiseDeal(storage, offerTxt) {
+function storeDeal(storage, offerTxt) {
   return function() {
     return storage.writeDeal(deal(offerTxt));
   }
