@@ -77,7 +77,7 @@ function generateOffers(offers_count, products, prices, amount_gen) {
   offers = [];
   products.forEach(function(product) {
     prices.forEach(function(price) {
-        offers = offers.concat(_generateOffers(product, offers_count, amount_gen));
+        offers = offers.concat(_generateOffers(product, offers_count, amount_gen, price));
     });
   })
   var end = new Date().getTime();

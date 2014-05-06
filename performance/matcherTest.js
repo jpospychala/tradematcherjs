@@ -1,15 +1,15 @@
-var utils = require('./test/utils'),
+var utils = require('../test/utils'),
   toHuman = utils.toHuman,
   range = utils.range,
   shuffle = utils.shuffle,
   random = utils.random,
   generateOffers = utils.generateOffers,
-  matcher = require('./lib/matcher');
+  matcher = require('../lib/matcher');
 
 m = new matcher.Matcher();
-start = 100;
+offersCount = 100;
 while (true) {
-    perfTest(generateOffers(start*=2, ['A'], range(1,1), random(100, 3000)), m);
+    perfTest(generateOffers(offersCount*=2, ['A'], range(1,1), random(100, 3000)), m);
 }
 
 function perfTest(offers, m) {
