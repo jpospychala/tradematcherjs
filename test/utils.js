@@ -72,33 +72,30 @@ function expectDeals(matcher, expectedMatches, callback) {
   });
 }
 
-function generateOffers(offers_count, products, prices, amount_gen) {
+function generateOffers(offers, offers_count, products, prices, amount_gen, idgen) {
+  idgen = idgen || new Sequence();
   var start = new Date().getTime();
-  offers = [];
   products.forEach(function(product) {
     prices.forEach(function(price) {
-        offers = offers.concat(_generateOffers(product, offers_count, amount_gen, price));
+      _generateOffers(offers, product, offers_count, amount_gen, price, idgen);
     });
   })
   var end = new Date().getTime();
-  return offers;
 }
-function _generateOffers(prod, offers_count, amount_gen, price) {
+
+function _generateOffers(offers, prod, offers_count, amount_gen, price, idgen) {
   var count = offers_count/2;
-  var oid = 1;
-  var offers = [];
   var total = 0;
   while (count-- > 0) {
     var amount = amount_gen();
     total += amount;
-    offers.push({oid:oid++, amount: amount, product: prod, price: price,is:'sell'});
+    offers.push({oid:idgen.next(), amount: amount, product: prod, price: price,is:'sell'});
   }
   while (total > 0) {
     var amount = Math.min(amount_gen(), total);
     total -= amount;
-    offers.push({oid:oid++, amount: amount, product: prod, price: price,is:'buy'});
+    offers.push({oid:idgen.next(), amount: amount, product: prod, price: price,is:'buy'});
   }
-return offers;
 }
 
 function range(min, max) {
@@ -123,6 +120,22 @@ function shuffle(array) {
   array.sort(function() {return Math.random() > 0.5 ? -1 : 1 })
 }
 
+function time(description, count, fn) {
+  var start = new Date().getTime();
+  var res = fn();
+  var end = new Date().getTime();
+  console.error(description+': '+((end-start)/1000).toFixed(2)+' secs, '+(count/(end-start)).toFixed()+' /msec');
+  return res;
+}
+
+function Sequence(startVal) {
+  var i = startVal || 0;
+
+  this.next = function() {
+    return i++;
+  }
+}
+
 module.exports = {
   offer: offer,
   deal: deal,
@@ -133,5 +146,7 @@ module.exports = {
   generateOffers: generateOffers,
   shuffle: shuffle,
   constant: constant,
-  random: random
+  random: random,
+  time: time,
+  Sequence: Sequence
 }
