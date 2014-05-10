@@ -124,7 +124,7 @@ function time(description, count, fn) {
   var start = new Date().getTime();
   var res = fn();
   var end = new Date().getTime();
-  console.error(description+': '+((end-start)/1000).toFixed(2)+' secs, '+(count/(end-start)).toFixed()+' /msec');
+  console.error(description+': '+((end-start)/1000).toFixed(2)+' secs, '+(count*1000/(end-start)).toFixed()+' /sec');
   return res;
 }
 

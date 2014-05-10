@@ -9,7 +9,11 @@ describe('App', function() {
   var app = new App();
 
   before(function(done) {
-    app.start().then(done, done);
+    app.start()
+    .then(function() {
+      return app.clear();
+    })
+    .then(function() {done()}, done);
   });
 
   after(function(done) {
@@ -29,6 +33,6 @@ describe('App', function() {
     app.offer(offer('1: sell 1 COOKIES for 3'))
     .then(function() {
       app.offer(offer('2: buy 2 COOKIES for 3'))
-    })
+    }, done)
   });
 });

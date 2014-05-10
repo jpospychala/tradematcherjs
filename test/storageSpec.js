@@ -2,7 +2,7 @@ var chai = require('chai'),
   expect = chai.expect,
   chaiAsPromised = require("chai-as-promised"),
   Q = require('q'),
-  Storage = require('../lib/storage').Storage,
+  Storage = require('../lib/mongostorage').Storage,
   utils = require('./utils'),
   offer = utils.offer,
   deal = utils.deal;
@@ -13,7 +13,7 @@ describe('Store', function() {
   var storage = new Storage();
 
   before(function(done) {
-    storage.open().then(done, done);
+    storage.open().then(function(x) {done();}, done);
   })
 
   after(function(done) {

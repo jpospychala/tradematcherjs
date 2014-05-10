@@ -152,7 +152,8 @@ describe('TradeMatcherJS', function() {
   it('should match random offers', function() {
     var m = new matcher.Matcher();
 
-    var offers = utils.generateOffers(1000, ['COOKIES'], [1, 2, 3], utils.random(100, 1000));
+    var offers = [];
+    utils.generateOffers(offers, 1000, ['COOKIES'], [1, 2, 3], utils.random(100, 1000));
     offers.forEach(function(o) {
       m.send(o);
     });
