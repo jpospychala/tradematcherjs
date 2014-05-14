@@ -2,18 +2,18 @@ var chai = require('chai'),
   expect = chai.expect,
   chaiAsPromised = require("chai-as-promised"),
   Q = require('q'),
-  Storage = require('../lib/mongostorage').Storage,
+  Storage = require('../lib/pgstorage').Storage,
   utils = require('./utils'),
   offer = utils.offer,
   deal = utils.deal;
 
 chai.use(chaiAsPromised);
 
-describe('Mongo store', function() {
+describe('Postgres store', function() {
   var storage = new Storage();
 
   before(function(done) {
-    storage.open().then(function(x) {done();}, done);
+    storage.open().then(function() {done();}, done);
   })
 
   after(function(done) {
